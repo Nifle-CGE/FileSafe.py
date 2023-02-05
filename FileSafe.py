@@ -5,6 +5,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet, InvalidToken
+
 # other
 import json
 import os
@@ -14,13 +15,19 @@ import sys
 with open("params.json") as f: # You have to have already created the file and have put the params in it
     params = json.load(f)
 
+password = input("Password : ")
+
 if not params.get("salt"):
     params["salt"] = os.urandom(16).decode("latin1")
     params["status"] = "encrypting"
+
+    if password != input("Confirm password : "):
+        input("Passwords do not correspond.")
+        sys.exit(0)
 else:
     params["status"] = "decrypting"
 
-password = input("Password : ").encode() # Convert input to type bytes
+password = password.encode() # Convert input to type bytes
 
 kdf = PBKDF2HMAC(
     algorithm=hashes.SHA256(),
